@@ -1,0 +1,11 @@
+# Spectra runtime data and search index
+.spectra/
+docs/spectra/.vector-search.db*
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Assembled app bundle
+build/

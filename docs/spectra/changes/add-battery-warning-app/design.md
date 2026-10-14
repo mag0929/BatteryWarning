@@ -54,7 +54,9 @@
 
 ### 使用 SwiftPM 搭配打包腳本，不依賴完整 Xcode
 
-專案以 Swift Package Manager 的 executable target 組織，由一支 shell 腳本組出 `BatteryWarning.app`：建立 `Contents/MacOS`、寫入 `Info.plist`、`codesign --force --deep --sign -` 做 ad-hoc 簽章。
+專案以 Swift Package Manager 的 executable target 組織，由一支 shell 腳本組出 `BatteryWarning.app`：建立 `Contents/MacOS`、寫入 `Info.plist`、`codesign --force --sign - --timestamp=none` 做 ad-hoc 簽章。
+
+簽章刻意**不使用 `--deep`**。這個 app bundle 只有一個可執行檔與一個 Info.plist，不需要遞迴簽章；而 `--deep` 會把簽章套用到 bundle 內所有檔案，Apple 亦不建議在一般流程中使用。
 
 **替代方案與否決理由：** 改用 `xcode-select -s /Applications/Xcode.app` 切到完整 Xcode 會得到較正規的 GUI 專案與自動簽章，但需要 `sudo`、需要開啟 Xcode，且使用者並未要求修改系統開發者目錄。SwiftPM 路徑在現有 Command Line Tools 環境下即可完整建置。
 

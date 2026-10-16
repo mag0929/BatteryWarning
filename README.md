@@ -113,8 +113,9 @@ Sources/
 │   ├── AlertThresholds.swift           門檻值型別（解除門檻由觸發門檻推導）
 │   ├── ThresholdEvaluator.swift        純函式告警判定
 │   ├── ThresholdStore.swift            UserDefaults 讀寫與夾邊界
-│   ├── AlertCoordinator.swift          面板與選單列共用的單一狀態機
-│   ├── MenuBarDisplay.swift            選單列顯示內容（不含 AppKit）
+│   ├── AlertCoordinator.swift          面板與下拉選單共用的單一狀態機
+│   ├── BatteryIcon.swift               電量分級與圖示名稱選擇（不含 AppKit）
+│   ├── MenuSummaryText.swift           下拉選單摘要文字（不含 AppKit）
 │   ├── LoginItemRegistrar.swift        SMAppService + LaunchAgent 退路
 │   ├── LoginItemController.swift       登入開關與狀態校正
 │   └── SimulationOptions.swift         --simulate-* 參數解析
@@ -122,9 +123,11 @@ Sources/
     ├── main.swift                       進入點
     ├── AppDelegate.swift                組裝各元件
     ├── StatusItemController.swift       選單列圖示與下拉選單
-    └── AlertPanelController.swift       浮動面板
+    ├── BatteryIconLoader.swift          從 bundle 載入圖示並縮放
+    ├── AlertPanelController.swift       浮動面板
+    └── Resources/                       電池圖示與 App 圖示素材
 
-Tests/BatteryWarningKitTests/     57 個單元測試
+Tests/BatteryWarningKitTests/     63 個單元測試
 scripts/build-app.sh              組出 .app 並做 ad-hoc 簽章
 docs/spectra/specs/               這個 App 應該怎樣運作（永久紀錄）
 docs/spectra/changes/archive/     已完成變更的歷史紀錄

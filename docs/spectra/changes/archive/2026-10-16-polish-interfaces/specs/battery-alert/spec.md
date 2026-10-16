@@ -1,11 +1,6 @@
-## RENAMED Requirements
+## ADDED Requirements
 
-- FROM: `### Requirement: Menu bar always reports current battery status`
-- TO: `### Requirement: Menu bar always shows the app status icon`
-
-## MODIFIED Requirements
-
-### Requirement: Menu bar always reports current battery status
+### Requirement: Menu bar always shows the app status icon
 
 The menu bar SHALL show a single status icon for the whole time the app runs, so the user can always find the app and open its menu. The menu bar item SHALL NOT display any text alongside the icon. The current battery level and the alert state SHALL be reported by the alert panel and by the menu opened from the item, not by the menu bar itself.
 
@@ -28,22 +23,6 @@ The menu bar SHALL show a single status icon for the whole time the app runs, so
 
 - **WHEN** the user opens the menu from the menu bar item
 - **THEN** the menu SHALL report the current battery level and power state
-
-### Requirement: Machines without a battery are handled silently
-
-When the system reports no battery, the system SHALL treat battery state as unavailable, SHALL NOT activate the alert condition under any battery level, and SHALL report the absence in the menu opened from the menu bar item. The system SHALL NOT surface an error to the user.
-
-#### Scenario: Desktop Mac with no battery
-
-- **WHEN** the app runs on a Mac with no internal battery
-- **THEN** no alert panel SHALL ever appear and the menu opened from the menu bar item SHALL report that no battery information is available
-
-#### Scenario: Battery status cannot be read
-
-- **WHEN** the system fails to read battery status
-- **THEN** the system SHALL treat the battery as unavailable, SHALL NOT show a panel, and SHALL NOT crash
-
-## ADDED Requirements
 
 ### Requirement: Alert panel reports the current battery level
 
@@ -141,3 +120,27 @@ The alert panel SHALL render a battery icon that matches the observed battery le
 | -1 percent      | lowest-level icon |
 | 101 percent     | fourth icon       |
 | 150 percent     | fourth icon       |
+
+## MODIFIED Requirements
+
+### Requirement: Machines without a battery are handled silently
+
+When the system reports no battery, the system SHALL treat battery state as unavailable, SHALL NOT activate the alert condition under any battery level, and SHALL report the absence in the menu opened from the menu bar item. The system SHALL NOT surface an error to the user.
+
+#### Scenario: Desktop Mac with no battery
+
+- **WHEN** the app runs on a Mac with no internal battery
+- **THEN** no alert panel SHALL ever appear and the menu opened from the menu bar item SHALL report that no battery information is available
+
+#### Scenario: Battery status cannot be read
+
+- **WHEN** the system fails to read battery status
+- **THEN** the system SHALL treat the battery as unavailable, SHALL NOT show a panel, and SHALL NOT crash
+
+## REMOVED Requirements
+
+### Requirement: Menu bar always reports current battery status
+
+**Reason**: The menu bar no longer reports anything about the battery. It shows one fixed status icon and no text; the battery level and the alert state are reported by the alert panel and by the menu opened from the item. A requirement whose title promises a report the interface no longer performs would send anyone reading this spec looking for behaviour that does not exist.
+
+**Migration**: Read "Menu bar always shows the app status icon" for what the menu bar itself does. Read "Alert panel reports the current battery level" and the scenario "Battery level is reported when the menu opens" for where the battery level is actually reported.

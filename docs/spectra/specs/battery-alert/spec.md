@@ -192,39 +192,69 @@ The system SHALL store the adjusted alert threshold in user defaults and SHALL r
 - **THEN** the system SHALL use the default 20 without crashing
 
 ---
-### Requirement: Menu bar always reports current battery status
-
-The menu bar SHALL show an item reporting the current battery level for the whole time the app runs. While the alert condition is active the item SHALL be rendered in a warning colour and SHALL carry a charging prompt. The alert panel and the menu bar item SHALL reflect the same alert condition, so that they cannot disagree.
-
-#### Scenario: Normal battery level
-
-- **WHEN** the alert condition is inactive
-- **THEN** the menu bar item SHALL show the current battery level without a warning colour
-
-#### Scenario: Alert active
-
-- **WHEN** the alert condition is active
-- **THEN** the menu bar item SHALL show a warning colour and the charging prompt alongside the battery level
-
-#### Scenario: Alert clears
-
-- **WHEN** the alert condition becomes inactive
-- **THEN** the menu bar item SHALL return to its normal appearance in the same update that hides the panel
-
----
 ### Requirement: Machines without a battery are handled silently
 
-When the system reports no battery, the system SHALL treat battery state as unavailable, SHALL NOT activate the alert condition under any battery level, and SHALL report the absence in the menu bar. The system SHALL NOT surface an error to the user.
+When the system reports no battery, the system SHALL treat battery state as unavailable, SHALL NOT activate the alert condition under any battery level, and SHALL report the absence in the menu opened from the menu bar item. The system SHALL NOT surface an error to the user.
 
 #### Scenario: Desktop Mac with no battery
 
 - **WHEN** the app runs on a Mac with no internal battery
-- **THEN** no alert panel SHALL ever appear and the menu bar item SHALL report that no battery information is available
+- **THEN** no alert panel SHALL ever appear and the menu opened from the menu bar item SHALL report that no battery information is available
 
 #### Scenario: Battery status cannot be read
 
 - **WHEN** the system fails to read battery status
 - **THEN** the system SHALL treat the battery as unavailable, SHALL NOT show a panel, and SHALL NOT crash
+
+
+<!-- @trace
+source: polish-interfaces
+updated: 2026-10-16
+code:
+  - Sources/BatteryWarning/Resources/battery-75.png
+  - Sources/BatteryWarningKit/AlertThresholds.swift
+  - Sources/BatteryWarningKit/BatteryStatus.swift
+  - Sources/BatteryWarningKit/BatteryMonitor.swift
+  - Tests/BatteryWarningKitTests/AlertCoordinatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemControllerTests.swift
+  - Tests/BatteryWarningKitTests/BatteryIconTests.swift
+  - scripts/build-app.sh
+  - Sources/BatteryWarning/Resources/Light/battery-100-light.png
+  - Tests/BatteryWarningKitTests/BatteryMonitorTests.swift
+  - Sources/BatteryWarning/main.swift
+  - Sources/BatteryWarning/Resources/Light/battery-25-light.png
+  - Sources/BatteryWarningKit/MenuBarDisplay.swift
+  - Sources/BatteryWarningKit/LoginItemController.swift
+  - Sources/BatteryWarningKit/SimulationOptions.swift
+  - README.md
+  - Tests/BatteryWarningKitTests/MenuSummaryTextTests.swift
+  - Sources/BatteryWarningKit/ThresholdEvaluator.swift
+  - Sources/BatteryWarning/Resources/Light/battery-50-light.png
+  - Sources/BatteryWarning/Resources/battery-100.png
+  - Sources/BatteryWarning/StatusItemController.swift
+  - Sources/BatteryWarning/AlertPanelController.swift
+  - Sources/BatteryWarning/Resources/Light/battery-charging-light.png
+  - Makefile
+  - Sources/BatteryWarningKit/BatteryIcon.swift
+  - Sources/BatteryWarningKit/AlertCoordinator.swift
+  - Sources/BatteryWarning/Resources/battery-25.png
+  - Sources/BatteryWarningKit/ThresholdStore.swift
+  - Sources/BatteryWarningKit/IOKitBatteryStatusReader.swift
+  - Sources/BatteryWarningKit/MenuSummaryText.swift
+  - Sources/BatteryWarning/AppDelegate.swift
+  - Sources/BatteryWarning/Resources/battery-50.png
+  - Tests/BatteryWarningKitTests/ThresholdEvaluatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemRegistrarTests.swift
+  - Tests/BatteryWarningKitTests/IOKitBatteryStatusReaderTests.swift
+  - Sources/BatteryWarningKit/LoginItemRegistrar.swift
+  - Sources/BatteryWarning/Resources/AppIcon.png
+  - Sources/BatteryWarning/BatteryIconLoader.swift
+  - Sources/BatteryWarning/Resources/Light/battery-75-light.png
+  - Tests/BatteryWarningKitTests/MenuBarDisplayTests.swift
+  - Sources/BatteryWarning/Resources/battery-charging.png
+  - Tests/BatteryWarningKitTests/ThresholdStoreTests.swift
+  - Sources/BatteryWarning/Resources/status-icon.png
+-->
 
 ---
 ### Requirement: Diagnostic failures are silent to the user
@@ -235,3 +265,276 @@ Every failure encountered while reading battery status, registering the app, or 
 
 - **WHEN** battery status reads fail on consecutive polling intervals
 - **THEN** the system SHALL log each failure and SHALL NOT display any dialog
+
+---
+### Requirement: Menu bar always shows the app status icon
+
+The menu bar SHALL show a single status icon for the whole time the app runs, so the user can always find the app and open its menu. The menu bar item SHALL NOT display any text alongside the icon. The current battery level and the alert state SHALL be reported by the alert panel and by the menu opened from the item, not by the menu bar itself.
+
+#### Scenario: Normal battery level
+
+- **WHEN** the alert condition is inactive
+- **THEN** the menu bar item SHALL display the status icon and no text
+
+#### Scenario: Alert active
+
+- **WHEN** the alert condition is active
+- **THEN** the menu bar item SHALL display the status icon and no text
+
+#### Scenario: Alert clears
+
+- **WHEN** the alert condition becomes inactive
+- **THEN** the menu bar item SHALL display the status icon and no text
+
+#### Scenario: Battery level is reported when the menu opens
+
+- **WHEN** the user opens the menu from the menu bar item
+- **THEN** the menu SHALL report the current battery level and power state
+
+
+<!-- @trace
+source: polish-interfaces
+updated: 2026-10-16
+code:
+  - Sources/BatteryWarning/Resources/battery-75.png
+  - Sources/BatteryWarningKit/AlertThresholds.swift
+  - Sources/BatteryWarningKit/BatteryStatus.swift
+  - Sources/BatteryWarningKit/BatteryMonitor.swift
+  - Tests/BatteryWarningKitTests/AlertCoordinatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemControllerTests.swift
+  - Tests/BatteryWarningKitTests/BatteryIconTests.swift
+  - scripts/build-app.sh
+  - Sources/BatteryWarning/Resources/Light/battery-100-light.png
+  - Tests/BatteryWarningKitTests/BatteryMonitorTests.swift
+  - Sources/BatteryWarning/main.swift
+  - Sources/BatteryWarning/Resources/Light/battery-25-light.png
+  - Sources/BatteryWarningKit/MenuBarDisplay.swift
+  - Sources/BatteryWarningKit/LoginItemController.swift
+  - Sources/BatteryWarningKit/SimulationOptions.swift
+  - README.md
+  - Tests/BatteryWarningKitTests/MenuSummaryTextTests.swift
+  - Sources/BatteryWarningKit/ThresholdEvaluator.swift
+  - Sources/BatteryWarning/Resources/Light/battery-50-light.png
+  - Sources/BatteryWarning/Resources/battery-100.png
+  - Sources/BatteryWarning/StatusItemController.swift
+  - Sources/BatteryWarning/AlertPanelController.swift
+  - Sources/BatteryWarning/Resources/Light/battery-charging-light.png
+  - Makefile
+  - Sources/BatteryWarningKit/BatteryIcon.swift
+  - Sources/BatteryWarningKit/AlertCoordinator.swift
+  - Sources/BatteryWarning/Resources/battery-25.png
+  - Sources/BatteryWarningKit/ThresholdStore.swift
+  - Sources/BatteryWarningKit/IOKitBatteryStatusReader.swift
+  - Sources/BatteryWarningKit/MenuSummaryText.swift
+  - Sources/BatteryWarning/AppDelegate.swift
+  - Sources/BatteryWarning/Resources/battery-50.png
+  - Tests/BatteryWarningKitTests/ThresholdEvaluatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemRegistrarTests.swift
+  - Tests/BatteryWarningKitTests/IOKitBatteryStatusReaderTests.swift
+  - Sources/BatteryWarningKit/LoginItemRegistrar.swift
+  - Sources/BatteryWarning/Resources/AppIcon.png
+  - Sources/BatteryWarning/BatteryIconLoader.swift
+  - Sources/BatteryWarning/Resources/Light/battery-75-light.png
+  - Tests/BatteryWarningKitTests/MenuBarDisplayTests.swift
+  - Sources/BatteryWarning/Resources/battery-charging.png
+  - Tests/BatteryWarningKitTests/ThresholdStoreTests.swift
+  - Sources/BatteryWarning/Resources/status-icon.png
+-->
+
+---
+### Requirement: Alert panel reports the current battery level
+
+The alert panel SHALL display the observed battery level as a percentage and SHALL display a charging prompt next to it, preceded by a warning marker so the prompt reads as a caution rather than a suggestion, so the user can tell how much charge remains without leaving the application they are working in. The displayed level SHALL be re-read whenever the observed battery level changes while the panel is visible. The panel SHALL render the battery icon that matches the same observed level.
+
+#### Scenario: Panel shows the observed battery level
+
+- **WHEN** the alert condition is active and the observed battery level is 15 percent
+- **THEN** the alert panel SHALL display 15 percent
+
+#### Scenario: Panel follows a change in the observed level
+
+- **WHEN** the alert panel is visible and the observed battery level changes from 15 percent to 12 percent
+- **THEN** the alert panel SHALL display 12 percent
+
+#### Scenario: Panel icon matches the displayed level rather than the lowest level
+
+- **WHEN** the alert condition is active and the observed battery level is 45 percent
+- **THEN** the alert panel SHALL render the battery icon selected for 45 percent rather than the icon selected for the lowest level
+
+#### Scenario: Panel level stays correct across a threshold change
+
+- **WHEN** the user raises the alert threshold so that the alert condition becomes active at 45 percent
+- **THEN** the alert panel SHALL display 45 percent and SHALL render the icon selected for 45 percent
+
+#### Scenario: Charging prompt is preceded by a warning marker
+
+- **WHEN** the alert panel is visible
+- **THEN** the charging prompt SHALL be preceded by a warning marker
+
+
+<!-- @trace
+source: polish-interfaces
+updated: 2026-10-16
+code:
+  - Sources/BatteryWarning/Resources/battery-75.png
+  - Sources/BatteryWarningKit/AlertThresholds.swift
+  - Sources/BatteryWarningKit/BatteryStatus.swift
+  - Sources/BatteryWarningKit/BatteryMonitor.swift
+  - Tests/BatteryWarningKitTests/AlertCoordinatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemControllerTests.swift
+  - Tests/BatteryWarningKitTests/BatteryIconTests.swift
+  - scripts/build-app.sh
+  - Sources/BatteryWarning/Resources/Light/battery-100-light.png
+  - Tests/BatteryWarningKitTests/BatteryMonitorTests.swift
+  - Sources/BatteryWarning/main.swift
+  - Sources/BatteryWarning/Resources/Light/battery-25-light.png
+  - Sources/BatteryWarningKit/MenuBarDisplay.swift
+  - Sources/BatteryWarningKit/LoginItemController.swift
+  - Sources/BatteryWarningKit/SimulationOptions.swift
+  - README.md
+  - Tests/BatteryWarningKitTests/MenuSummaryTextTests.swift
+  - Sources/BatteryWarningKit/ThresholdEvaluator.swift
+  - Sources/BatteryWarning/Resources/Light/battery-50-light.png
+  - Sources/BatteryWarning/Resources/battery-100.png
+  - Sources/BatteryWarning/StatusItemController.swift
+  - Sources/BatteryWarning/AlertPanelController.swift
+  - Sources/BatteryWarning/Resources/Light/battery-charging-light.png
+  - Makefile
+  - Sources/BatteryWarningKit/BatteryIcon.swift
+  - Sources/BatteryWarningKit/AlertCoordinator.swift
+  - Sources/BatteryWarning/Resources/battery-25.png
+  - Sources/BatteryWarningKit/ThresholdStore.swift
+  - Sources/BatteryWarningKit/IOKitBatteryStatusReader.swift
+  - Sources/BatteryWarningKit/MenuSummaryText.swift
+  - Sources/BatteryWarning/AppDelegate.swift
+  - Sources/BatteryWarning/Resources/battery-50.png
+  - Tests/BatteryWarningKitTests/ThresholdEvaluatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemRegistrarTests.swift
+  - Tests/BatteryWarningKitTests/IOKitBatteryStatusReaderTests.swift
+  - Sources/BatteryWarningKit/LoginItemRegistrar.swift
+  - Sources/BatteryWarning/Resources/AppIcon.png
+  - Sources/BatteryWarning/BatteryIconLoader.swift
+  - Sources/BatteryWarning/Resources/Light/battery-75-light.png
+  - Tests/BatteryWarningKitTests/MenuBarDisplayTests.swift
+  - Sources/BatteryWarning/Resources/battery-charging.png
+  - Tests/BatteryWarningKitTests/ThresholdStoreTests.swift
+  - Sources/BatteryWarning/Resources/status-icon.png
+-->
+
+---
+### Requirement: Alert panel renders a battery icon for the observed level
+
+The alert panel SHALL render a battery icon that matches the observed battery level and the observed charging state. The icon SHALL remain distinguishable from the panel background under both the light system appearance and the dark system appearance. The menu bar item SHALL render a single fixed status icon instead of a battery icon, and SHALL NOT change as the battery level changes.
+
+#### Scenario: Panel icon shows the observed level
+
+- **WHEN** the alert condition is active and the observed battery level is 15 percent and the battery is not charging
+- **THEN** the alert panel SHALL render the icon selected for the 15 percent level
+
+##### Example: observed level resolves to an icon bucket
+
+| Observed level          | Selected icon          |
+| ----------------------- | ---------------------- |
+| 0 percent               | lowest-level icon      |
+| 25 percent              | lowest-level icon      |
+| 26 percent              | second icon            |
+| 50 percent              | second icon            |
+| 51 percent              | third icon             |
+| 75 percent              | third icon             |
+| 76 percent              | fourth icon            |
+| 100 percent             | fourth icon            |
+| any level, charging     | charging icon          |
+
+#### Scenario: Panel icon shows the charging state
+
+- **WHEN** the battery is charging
+- **THEN** the alert panel SHALL render the charging icon instead of a level icon
+
+##### Example: charging takes priority over the level
+
+- **GIVEN** a battery at 80 percent that is charging
+- **WHEN** the alert panel renders
+- **THEN** it SHALL render the charging icon rather than the icon for 80 percent
+
+#### Scenario: Menu bar icon does not change with the battery level
+
+- **WHEN** the observed battery level changes from 15 percent to 80 percent
+- **THEN** the menu bar item SHALL display the same fixed status icon and no text
+
+#### Scenario: No battery means no panel icon
+
+- **WHEN** the system reports that no battery is present
+- **THEN** the alert panel SHALL NOT display a battery icon
+
+##### Example: desktop Mac with no internal battery
+
+- **GIVEN** a status reporting no battery present
+- **WHEN** the alert panel renders
+- **THEN** it SHALL NOT display a battery icon
+
+#### Scenario: Icon stays distinguishable under the dark system appearance
+
+- **WHEN** the system appearance is dark
+- **THEN** the battery icon SHALL remain distinguishable from the panel background
+
+#### Scenario: Level outside the covered ranges still yields an icon
+
+- **WHEN** the observed battery level falls outside the ranges the icon set covers
+- **THEN** the icon selected for the nearest covered level SHALL be rendered instead of no icon
+
+##### Example: levels outside the covered range
+
+| Observed level | Selected icon     |
+| --------------- | ----------------- |
+| -1 percent      | lowest-level icon |
+| 101 percent     | fourth icon       |
+| 150 percent     | fourth icon       |
+
+<!-- @trace
+source: polish-interfaces
+updated: 2026-10-16
+code:
+  - Sources/BatteryWarning/Resources/battery-75.png
+  - Sources/BatteryWarningKit/AlertThresholds.swift
+  - Sources/BatteryWarningKit/BatteryStatus.swift
+  - Sources/BatteryWarningKit/BatteryMonitor.swift
+  - Tests/BatteryWarningKitTests/AlertCoordinatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemControllerTests.swift
+  - Tests/BatteryWarningKitTests/BatteryIconTests.swift
+  - scripts/build-app.sh
+  - Sources/BatteryWarning/Resources/Light/battery-100-light.png
+  - Tests/BatteryWarningKitTests/BatteryMonitorTests.swift
+  - Sources/BatteryWarning/main.swift
+  - Sources/BatteryWarning/Resources/Light/battery-25-light.png
+  - Sources/BatteryWarningKit/MenuBarDisplay.swift
+  - Sources/BatteryWarningKit/LoginItemController.swift
+  - Sources/BatteryWarningKit/SimulationOptions.swift
+  - README.md
+  - Tests/BatteryWarningKitTests/MenuSummaryTextTests.swift
+  - Sources/BatteryWarningKit/ThresholdEvaluator.swift
+  - Sources/BatteryWarning/Resources/Light/battery-50-light.png
+  - Sources/BatteryWarning/Resources/battery-100.png
+  - Sources/BatteryWarning/StatusItemController.swift
+  - Sources/BatteryWarning/AlertPanelController.swift
+  - Sources/BatteryWarning/Resources/Light/battery-charging-light.png
+  - Makefile
+  - Sources/BatteryWarningKit/BatteryIcon.swift
+  - Sources/BatteryWarningKit/AlertCoordinator.swift
+  - Sources/BatteryWarning/Resources/battery-25.png
+  - Sources/BatteryWarningKit/ThresholdStore.swift
+  - Sources/BatteryWarningKit/IOKitBatteryStatusReader.swift
+  - Sources/BatteryWarningKit/MenuSummaryText.swift
+  - Sources/BatteryWarning/AppDelegate.swift
+  - Sources/BatteryWarning/Resources/battery-50.png
+  - Tests/BatteryWarningKitTests/ThresholdEvaluatorTests.swift
+  - Tests/BatteryWarningKitTests/LoginItemRegistrarTests.swift
+  - Tests/BatteryWarningKitTests/IOKitBatteryStatusReaderTests.swift
+  - Sources/BatteryWarningKit/LoginItemRegistrar.swift
+  - Sources/BatteryWarning/Resources/AppIcon.png
+  - Sources/BatteryWarning/BatteryIconLoader.swift
+  - Sources/BatteryWarning/Resources/Light/battery-75-light.png
+  - Tests/BatteryWarningKitTests/MenuBarDisplayTests.swift
+  - Sources/BatteryWarning/Resources/battery-charging.png
+  - Tests/BatteryWarningKitTests/ThresholdStoreTests.swift
+  - Sources/BatteryWarning/Resources/status-icon.png
+-->

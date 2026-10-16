@@ -1,4 +1,4 @@
-.PHONY: build app install test clean
+.PHONY: build app install test check clean
 
 # swift build 只靠 Command Line Tools 就能跑，但測試 target 需要 XCTest 與
 # Testing 的巨集外掛，它們只隨完整的 Xcode toolchain 出貨。存在時用
@@ -56,6 +56,12 @@ install: app
 
 test:
 	$(TEST_ENV) swift test
+
+# 比對 /Applications 裡的那份與 build/ 的內容雜湊，回答「有沒有必要重跑
+# make install」。以雜湊而非版本號判斷，因為 build-app.sh 把
+# CFBundleShortVersionString 寫死成 1.0.0。QUIET=0 會列出差異明細。
+check:
+	@QUIET=0 ./scripts/check-install.sh
 
 clean:
 	rm -rf .build build

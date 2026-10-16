@@ -1,7 +1,7 @@
 import Testing
 @testable import BatteryWarningKit
 
-/// Rows come from the transition table in the `battery-alert` spec.
+/// 資料列取自 `battery-alert` 規格中的狀態轉換表。
 @Suite("門檻判定")
 struct ThresholdEvaluatorTests {
     private func status(_ percent: Int, external: Bool = false, charging: Bool = false, present: Bool = true) -> BatteryStatus {
@@ -16,7 +16,7 @@ struct ThresholdEvaluatorTests {
     private let thresholds = AlertThresholds.default  // 20 / 25
 
     @Test func testDefaultThresholdTransitions() {
-        // previous level, new level, external power, alerting after
+        // 欄位依序為：前次電量、本次電量、外部電源、轉換後是否提醒
         let rows: [(Int, Int, Bool, Bool)] = [
             (21, 20, false, true),
             (20, 21, false, true),
@@ -43,13 +43,13 @@ struct ThresholdEvaluatorTests {
         let active = ThresholdEvaluator.isAlerting(status(19), thresholds: thresholds)
         #expect(active)
 
-        // 19 -> 21 sits inside the 20..25 band and must not clear.
+        // 19 → 21 落在 20...25 這個遲滯區間內，不該解除提醒。
         let afterRise = ThresholdEvaluator.isAlerting(
             previous: active, status: status(21), thresholds: thresholds
         )
         #expect(afterRise)
 
-        // Reaching the clear threshold releases it.
+        // 達到清除門檻就解除。
         let afterClear = ThresholdEvaluator.isAlerting(
             previous: afterRise, status: status(25), thresholds: thresholds
         )
@@ -60,7 +60,7 @@ struct ThresholdEvaluatorTests {
         let active = ThresholdEvaluator.isAlerting(status(15), thresholds: thresholds)
         #expect(active)
 
-        // Plugged in but NOT charging (full, or charge optimisation).
+        // 插著電但沒有在充電（充飽了，或啟用充電最佳化）。
         let afterPlug = ThresholdEvaluator.isAlerting(
             previous: active,
             status: status(15, external: true, charging: false),

@@ -41,20 +41,20 @@ struct LoginItemControllerTests {
         let (defaults, suite) = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        // Preference says enabled, but the user removed the app from System
-        // Settings. The registration is genuinely gone.
+        // 偏好值說是開啟的，但使用者已從「系統設定」把 App 移除，
+        // 註冊確實不見了。這種情況下開關必須顯示為關閉。
         defaults.set(true, forKey: LoginItemController.preferenceKey)
         let registrar = FakeRegistrar(isRegistered: false)
         let controller = LoginItemController(registrar: registrar, defaults: defaults)
 
         let result = controller.reconcile()
 
-        #expect(result == false, "actual registration wins")
+        #expect(result == false, "以實際註冊狀態為準")
         #expect(controller.isEnabled == false)
-        #expect(registrar.registerCount == 0, "must not re-register behind the user's back")
+        #expect(registrar.registerCount == 0, "不得在使用者不知情下重新註冊")
         #expect(
             defaults.bool(forKey: LoginItemController.preferenceKey) == false,
-            "the stored preference is corrected to match reality"
+            "存檔的偏好值已修正成與事實一致"
         )
     }
 
@@ -110,7 +110,7 @@ struct LoginItemControllerTests {
         let controller = LoginItemController(registrar: registrar, defaults: defaults)
         controller.reconcile()
 
-        // Must not throw and must not claim success.
+        // 不得拋錯，也不得宣稱成功。
         controller.setEnabled(true)
 
         #expect(controller.isEnabled == false)
@@ -121,7 +121,7 @@ struct LoginItemControllerTests {
         let (defaults, suite) = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        // Unregister leaves it registered -> the toggle must not claim success.
+        // 取消註冊後仍然留在註冊狀態 → 開關不得宣稱成功。
         final class StubbornRegistrar: LoginItemRegistering {
             var isRegistered = true
             func register() throws {}
@@ -132,6 +132,6 @@ struct LoginItemControllerTests {
         controller.reconcile()
         controller.setEnabled(false)
 
-        #expect(controller.isEnabled == true, "still registered, so still reported on")
+        #expect(controller.isEnabled == true, "仍然註冊中，因此仍回報為開啟")
     }
 }

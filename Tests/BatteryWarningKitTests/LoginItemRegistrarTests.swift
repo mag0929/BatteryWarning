@@ -64,14 +64,14 @@ struct LoginItemRegistrarTests {
 
         try registrar.register()
 
-        #expect(primary.registerCount == 1, "primary was attempted")
+        #expect(primary.registerCount == 1, "主要機制有被嘗試過")
         #expect(
             FileManager.default.fileExists(atPath: registrar.launchAgentURL.path),
-            "fallback plist must exist"
+            "fallback 的 plist 必須存在"
         )
-        #expect(registrar.isRegistered, "launch-at-login still works via the fallback")
+        #expect(registrar.isRegistered, "登入時啟動仍可透過 fallback 運作")
 
-        // plist contents
+        // plist 內容
         let data = try Data(contentsOf: registrar.launchAgentURL)
         let plist = try PropertyListSerialization.propertyList(from: data, format: nil)
         let dict = try #require(plist as? [String: Any])
@@ -82,7 +82,7 @@ struct LoginItemRegistrarTests {
         #expect(programArgs.count == 1)
         #expect(programArgs[0].hasSuffix("Test"))
 
-        // launchctl bootstrap was attempted
+        // launchctl bootstrap 有被嘗試過
         #expect(ran.contains { $0.0 == "launchctl" && $0.1.contains("bootstrap") })
     }
 
@@ -101,7 +101,7 @@ struct LoginItemRegistrarTests {
 
         #expect(primary.isEnabled)
         #expect(!FileManager.default.fileExists(atPath: registrar.launchAgentURL.path))
-        #expect(ran.isEmpty, "no launchctl call when the primary path works")
+        #expect(ran.isEmpty, "主要路徑可用時不該呼叫 launchctl")
         #expect(registrar.isRegistered)
     }
 
@@ -125,11 +125,11 @@ struct LoginItemRegistrarTests {
         let dir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
 
-        // Nothing registered anywhere.
+        // 兩個機制都沒有註冊。
         let registrar = makeRegistrar(primary: FakePrimary(enabled: false), tempDir: dir)
         #expect(registrar.isRegistered == false)
 
-        // Only the primary system registration counts too.
+        // 只有主要系統註冊時也算已註冊——另一個機制同樣在場。
         let registered = makeRegistrar(primary: FakePrimary(enabled: true), tempDir: dir)
         #expect(registered.isRegistered == true)
     }
@@ -138,9 +138,8 @@ struct LoginItemRegistrarTests {
         let dir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
 
-        // A regular file where the LaunchAgents directory should be: writing
-        // the plist cannot succeed, so the fallback must report the failure
-        // rather than claiming success.
+        // 在 LaunchAgents 該是目錄的位置放了一個一般檔案：寫 plist 不可能成功，
+        // 因此 fallback 必須回報失敗，而不是宣稱成功。
         let blocked = dir.appendingPathComponent("LaunchAgents")
         FileManager.default.createFile(atPath: blocked.path, contents: Data("x".utf8))
 
@@ -155,6 +154,6 @@ struct LoginItemRegistrarTests {
         #expect(throws: LoginItemError.self) {
             try registrar.register()
         }
-        #expect(registrar.isRegistered == false, "a failed fallback is not 'registered'")
+        #expect(registrar.isRegistered == false, "fallback 失敗不算「已註冊」")
     }
 }

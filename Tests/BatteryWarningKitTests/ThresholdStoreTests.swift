@@ -4,8 +4,8 @@ import Testing
 
 @Suite("門檻持久化")
 struct ThresholdStoreTests {
-    /// Each test gets its own defaults suite so `UserDefaults.standard` is
-    /// never touched.
+    /// 每個測試都有自己的 defaults suite，因此 `UserDefaults.standard`
+    /// 完全不會被碰到。
     private func makeStore() -> (ThresholdStore, UserDefaults) {
         let suite = "bw.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
@@ -37,29 +37,29 @@ struct ThresholdStoreTests {
     @Test func testStepAtBoundsDoesNotWrite() {
         let (store, defaults) = makeStore()
 
-        // Walk up to the ceiling the way the menu does: 20 -> 50 in six steps.
+        // 像選單那樣一路調到上限：20 → 50，六步。
         for _ in 0..<6 { store.step(by: AlertThresholds.step) }
         #expect(store.current.alertPercent == AlertThresholds.maxAlert)
 
         var notified = 0
         store.onChange = { _ in notified += 1 }
 
-        // A seventh upward step is out of range: no write, no notification.
+        // 再往上第七步會超出範圍：不寫入，也不通知。
         store.step(by: AlertThresholds.step)
         #expect(store.current.alertPercent == AlertThresholds.maxAlert)
         #expect(defaults.integer(forKey: ThresholdStore.defaultsKey) == AlertThresholds.maxAlert)
-        #expect(notified == 0, "a rejected step must not notify observers")
+        #expect(notified == 0, "被拒絕的平移不得通知觀察者")
 
-        // Walk down to the floor: 50 -> 5 in nine steps.
+        // 一路調到下限：50 → 5，九步。
         for _ in 0..<9 { store.step(by: -AlertThresholds.step) }
         #expect(store.current.alertPercent == AlertThresholds.minAlert)
         #expect(notified == 9)
 
-        // One more downward step is out of range.
+        // 再往下一步會超出範圍。
         store.step(by: -AlertThresholds.step)
         #expect(store.current.alertPercent == AlertThresholds.minAlert)
         #expect(defaults.integer(forKey: ThresholdStore.defaultsKey) == AlertThresholds.minAlert)
-        #expect(notified == 9, "still only the nine in-range steps notified")
+        #expect(notified == 9, "仍然只有九個範圍內的步驟有通知")
     }
 
     @Test func testOversizedSingleStepIsRejectedWithoutClamping() {
@@ -67,8 +67,8 @@ struct ThresholdStoreTests {
         var notified = 0
         store.onChange = { _ in notified += 1 }
 
-        // +100 in one go lands outside the range, so nothing is written —
-        // the step never silently clamps to the ceiling.
+        // 一次 +100 會落在範圍之外，因此什麼都不寫入——
+        // 平移絕不會靜默地被夾到上限。
         store.step(by: AlertThresholds.step * 20)
         #expect(store.current.alertPercent == 20)
         #expect(defaults.object(forKey: ThresholdStore.defaultsKey) == nil)
@@ -83,7 +83,7 @@ struct ThresholdStoreTests {
             let store = ThresholdStore(defaults: defaults)
             #expect(
                 store.current.alertPercent == AlertThresholds.defaultAlertPercent,
-                "stored \(bad) should fall back to 20"
+                "存檔的 \(bad) 應退回 20"
             )
             defaults.removePersistentDomain(forName: suite)
         }

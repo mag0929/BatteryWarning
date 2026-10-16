@@ -3,7 +3,7 @@ import IOKit.ps
 import Testing
 @testable import BatteryWarningKit
 
-/// Parses real IOKit descriptor dictionaries; needs no battery.
+/// 解析真正的 IOKit descriptor 字典，不需要真的有一顆電池。
 @Suite("IOKit 狀態解析")
 struct IOKitBatteryStatusReaderTests {
 
@@ -18,7 +18,7 @@ struct IOKitBatteryStatusReaderTests {
         if let present { d[kIOPSIsPresentKey as String] = present }
         if let current { d[kIOPSCurrentCapacityKey as String] = current }
         if let maximum { d[kIOPSMaxCapacityKey as String] = maximum }
-        // External power is expressed through the power source state string.
+        // 外部電源是靠電源狀態字串表達的，沒有專屬的旗標。
         d[kIOPSPowerSourceStateKey as String] = (external ?? false)
             ? kIOPSACPowerValue as String
             : kIOPSBatteryPowerValue as String
@@ -55,7 +55,7 @@ struct IOKitBatteryStatusReaderTests {
             from: descriptor(current: nil, maximum: nil)
         )
         #expect(status.isBatteryPresent == true)
-        #expect(status.percent == nil, "no guess is better than a wrong number")
+        #expect(status.percent == nil, "寧可沒有答案，也不要一個錯的數字")
     }
 
     @Test func testZeroMaximumYieldsNoPercentage() {

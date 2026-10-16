@@ -1,12 +1,11 @@
 import Foundation
 import os
 
-/// Mediates the "launch at login" toggle between the menu and the system.
+/// 在選單與系統之間斡旋「登入時啟動」這個開關。
 ///
-/// The stored preference is never treated as truth, and the app never
-/// re-registers itself: if the user removed the app from System Settings, the
-/// next launch reports the toggle as off and leaves it that way. Re-enabling
-/// is something only the user can do, through the toggle.
+/// 存檔的偏好值一律不當成事實，App 也絕不主動重新註冊自己：使用者若在
+/// 「系統設定」把 App 移除了，下次啟動時開關會顯示為關閉，就這樣維持下去。
+/// 要重新啟用只有使用者自己能做，也就是自己把開關打回去。
 public final class LoginItemController {
     public static let preferenceKey = "launchAtLoginEnabled"
 
@@ -17,6 +16,8 @@ public final class LoginItemController {
     private let logger = Logger(
         subsystem: "com.local.batterywarning", category: "LoginItemController"
     )
+    /// 目前開關狀態。真正的來源是 `registrar.isRegistered`，這個值只是把查詢
+    /// 結果快取起來給選單用。
     public private(set) var isEnabled = false
 
     public init(
@@ -27,12 +28,11 @@ public final class LoginItemController {
         self.defaults = defaults
     }
 
-    /// Reads the actual registration state and adopts it. Registers nothing.
+    /// 讀取真正的註冊狀態並採用它。不做任何註冊。
     @discardableResult
     public func reconcile() -> Bool {
         isEnabled = registrar.isRegistered
-        // Keep the stored preference in step with reality so the menu and the
-        // system cannot drift apart.
+        // 把存檔的偏好值同步成真實狀態，讓選單與系統不會各說各話。
         if defaults.bool(forKey: Self.preferenceKey) != isEnabled {
             defaults.set(isEnabled, forKey: Self.preferenceKey)
         }
@@ -40,12 +40,14 @@ public final class LoginItemController {
         return isEnabled
     }
 
-    /// Flips the toggle. Never throws: a failure leaves the toggle off and is
-    /// logged, never shown as a dialog.
+    /// 翻轉開關。永不拋錯：失敗時開關維持關閉並記錄到 log，
+    /// 不會跳出對話框——選單列小工具在別人正忙著時彈視窗是一種冒犯。
     public func setEnabled(_ enabled: Bool) {
         if enabled {
             do {
                 try registrar.register()
+                // 註冊後回讀而不是直接設為 true：register() 成功不代表系統一定
+                // 接受了（例如 ServiceManagement 在受管設備上會拒絕）。
                 isEnabled = registrar.isRegistered
             } catch {
                 logger.error("registration failed: \(String(describing: error), privacy: .public)")

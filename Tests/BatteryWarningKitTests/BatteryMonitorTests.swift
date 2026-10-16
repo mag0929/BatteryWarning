@@ -5,7 +5,7 @@ import Testing
 @Suite("電池監看")
 struct BatteryMonitorTests {
 
-    /// Reader that returns a scripted sequence and counts how often it was read.
+    /// 依腳本依序回傳狀態的讀取器，並記錄被讀取幾次。
     final class ScriptedReader: BatteryStatusReading {
         var statuses: [BatteryStatus]
         private(set) var readCount = 0
@@ -38,7 +38,7 @@ struct BatteryMonitorTests {
         monitor.refreshNow()
         monitor.refreshNow()
 
-        #expect(received == [battery(42), battery(41)], "unchanged status is not republished")
+        #expect(received == [battery(42), battery(41)], "狀態沒變就不重新發布")
     }
 
     @Test func testStartWithSimulatedStatusSkipsReader() {
@@ -50,7 +50,7 @@ struct BatteryMonitorTests {
         monitor.start()
 
         #expect(received == [battery(15)])
-        #expect(reader.readCount == 0, "simulated mode must not touch IOKit")
+        #expect(reader.readCount == 0, "模擬模式不得碰 IOKit")
         monitor.stop()
     }
 
@@ -73,8 +73,7 @@ struct BatteryMonitorTests {
         monitor.refreshNow()
         #expect(received.count == 1)
 
-        // The workspace wake notification drives a re-read and republishes even
-        // though the app already saw this value.
+        // 喚醒通知會觸發重讀並重新發布，即使 App 早就看過這個值也一樣。
         monitor.handleSystemWake()
         #expect(received.count == 2)
         #expect(reader.readCount == 2)
@@ -99,7 +98,7 @@ struct BatteryMonitorTests {
     }
 
     @Test func testSimulationOptionsAcceptEqualsForm() {
-        // The documented invocation form: --simulate-battery=<percent>
+        // 文件記載的啟動參數寫法：--simulate-battery=<percent>
         let args = ["--simulate-battery=15", "--simulate-external-power=0"]
         let status = SimulationOptions.simulatedStatus(from: args)
         #expect(status?.percent == 15)

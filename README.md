@@ -178,6 +178,12 @@ $spectra-archive  封存，規格合併回 specs/
 - **面板會蓋住全螢幕內容**。這是「優先於所有 App」的必然代價。要改成全螢幕時自動讓路，把 `AlertPanelController.swift` 的視窗層級從 `.screenSaver` 降到 `.statusBar`。
 - **右上角會與 macOS 通知橫幅重疊**。面板層級較高所以不會被遮住，但視覺上會擠在一起。
 - 30 秒輪詢在長時間運行下有輕微耗電，常駐背景的量級可忽略。
+- **SF Symbols 的名稱失效時會靜默降級**。`NSImage(systemSymbolName:)` 遇到不認識的名稱會回傳 `nil` 且不作任何回報，因此系統換代把某個符號改名後，App 少掉的是那個圖示而不是報錯：
+  - 選單列的七個項目圖示（`StatusItemController.symbol(_:)`）
+  - 面板「請插電充電」前的紅色警告三角形（`AlertPanelController`）
+  - 找不到自製電池圖示時的退路符號（`BatteryIconLoader.fallback`）
+
+  Apple 至今未移除過任何 SF Symbol，此風險目前只在系統更新後才可能浮現。三處的程式碼註解都有記錄；若要實質保護，可在 DEBUG 版加上啟動時斷言，而非新增測試 target。
 
 ## License
 

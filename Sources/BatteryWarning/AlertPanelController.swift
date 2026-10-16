@@ -231,8 +231,11 @@ final class AlertPanelController: AlertPresenting {
     }
 
     private func updateContent(with status: BatteryStatus) {
-        // 讀不到電量時顯示破折號而不是空白：空白會讓面板看起來像壞掉，
-        // 破折號至少傳達「這裡本來該有數字」。
+        // `?? "—"` 在目前的呼叫路徑下**不可達**：面板只會在 `AlertCoordinator`
+        // 判定仍需提醒時才更新，而 `ThresholdEvaluator` 在 `percent == nil` 時
+        // 一律回傳 false，面板根本不會出現。保留它是為了萬一哪天這條不變式
+        // 被打破時，顯示破折號好過顯示上一個電量的殘值。
+        // 若要為它寫測試，先確認呼叫條件是否已經改變——否則等於把死路徑釘死。
         percentLabel?.stringValue = status.percent.map { "\($0)%" } ?? "—"
         guard let iconView else { return }
 

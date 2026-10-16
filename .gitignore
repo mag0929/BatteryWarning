@@ -17,3 +17,10 @@ build/
 # next to them; the JPEGs are kept out of history on purpose because they are
 # megabytes of source material that nothing in the build reads.
 Resources/*.jpeg
+
+# Session export: a full development transcript. Useful locally as a record of
+# how the project got here, but it is a conversation log rather than
+# documentation, and it does not belong in a public repository. Tracked until
+# 2026-10-16, when it was untracked; see the README's note on removing it from
+# published history.
+session.md

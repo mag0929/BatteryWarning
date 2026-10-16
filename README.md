@@ -28,33 +28,55 @@ macOS 內建的低電量警告只在剩 10% 時出現一次橫幅，約 5 秒就
 ```bash
 git clone https://github.com/mag0929/BatteryWarning.git
 cd BatteryWarning
-make app                                  # 產出 build/BatteryWarning.app
-cp -R build/BatteryWarning.app /Applications/
-open -a /Applications/BatteryWarning.app
+make install                     # 建置並複製到 /Applications
 ```
 
-App 啟動後只會在選單列出現一個電量圖示，**沒有 Dock 圖示、不開任何視窗**。
+想裝到別的位置：`make install DEST_DIR="$HOME/Applications"`。
+
+（`~` 必須寫成 `$HOME`。Makefile 的路徑有加引號，引號內的 `~` 不會展開，直接寫 `~/Applications` 會建出一個名為 `~` 的目錄。）
+
+只想產出 bundle、不安裝：`make app`，產物在 `build/BatteryWarning.app`。
+
+不確定已經裝的那份是不是舊的，跑 `make check` 比對內容雜湊。
+
+App 啟動後只會在選單列出現一個狀態圖示，**沒有 Dock 圖示、不開任何視窗**。
 
 開機自動啟動預設是關閉的。在選單列選單裡勾選「登入時開啟」。
 
 ## 使用
 
-選單列圖示隨時顯示目前電量：
+### 選單列
 
-| 狀態 | 顯示 |
+選單列只顯示**一個固定的狀態圖示**：不顯示任何文字，也不隨電量或提醒狀態變化。點開選單才看得到電量。
+
+選單第一行是狀態摘要：
+
+| 狀態 | 摘要列顯示 |
 | --- | --- |
-| 正常 | `63%` |
-| 提醒中 | `請插電充電 15%`（紅字） |
+| 未接電源 | `電量 63% · 使用電池` |
+| 充電中 | `電量 63% · 充電中` |
+| 已接電源但沒在充 | `電量 100% · 已接電源` |
 | 無電池（桌上型 Mac） | `無電池資訊` |
 
-點開選單可以：
+其餘項目：
 
-- 看目前電量與供電狀態
 - **立即檢查** — 強制重算一次
-- **調整低電量提醒門檻** — 5% 到 50%，每次 5%
+- **低電量提醒門檻 20%** — 目前門檻（唯讀）
+- **提高門檻 (+)** / **降低門檻 (−)** — 5% 到 50%，每次 5%
 - **登入時開啟** — 開機自動啟動開關
 - 開啟系統的電池設定
 - 結束 App
+
+### 警示面板
+
+電量低於門檻且未接電源時，面板出現在游標所在螢幕的右上角，壓過所有 App 包括全螢幕。接上電源就自動收起。
+
+面板固定 300×100，一直顯示到解除為止，不需點任何按鈕：
+
+- 左側是電池圖示，依電量分四級（0–25% 一格、26–50% 兩格、51–75% 三格、76–100% 四格），充電中顯示閃電
+- 右側固定兩行：40pt 的電量百分比（等寬數字，變動時不會跳動），下方是紅色三角形加「請插電充電」
+- 面板可見期間電量會持續更新，不會停在剛出現時的數字
+- 拖曳游標到另一台螢幕，面板會跟著過去
 
 ## 測試
 
@@ -82,13 +104,15 @@ open -a /Applications/BatteryWarning.app --args \
 
 `--simulate-battery` 和 `--simulate-external-power` 兩個參數必須同時給。
 
+兩個參數都是**啟動時讀取一次**，執行中改變參數不會生效，要重新啟動。模擬狀態也無法表示「充電中」，所以充電圖示只能靠單元測試驗證。
+
 ### 單元測試
 
 ```bash
 make test
 ```
 
-57 個測試、8 個測試組，涵蓋門檻狀態機、參數持久化、IOKit 狀態解析、登入註冊、選單列顯示。
+62 個測試、9 個測試組，涵蓋門檻狀態機、參數持久化、IOKit 狀態解析、登入註冊、圖示分級規則、選單摘要文字。
 
 ### 直接改門檻設定測試
 
@@ -145,8 +169,12 @@ docs/spectra/changes/archive/     已完成變更的歷史紀錄
 | --- | --- |
 | `make build` | Release 建置 |
 | `make app` | 組出 `build/BatteryWarning.app`（含 ad-hoc 簽章） |
+| `make install` | `make app` 後複製到 `/Applications`（`DEST_DIR=...` 可改位置） |
+| `make check` | 比對已安裝的 App 與 `build/`，判斷是否需要重裝 |
 | `make test` | 跑單元測試 |
 | `make clean` | 清掉 `.build/` 與 `build/` |
+
+`make install` 在需要時會自動改用 `sudo` 刪除舊副本，並把擁有者還給你，因此只有第一次或舊副本屬於 `root` 時才會提示密碼。
 
 ### 關於測試工具鏈
 
@@ -162,7 +190,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
 
 ## 設計說明
 
-這個 App 用 [Spectra](https://github.com/kaochenlong/spectra-app) 做規格驅動開發（SDD）。`docs/spectra/specs/` 記錄的是「這個 App 應該怎樣運作」，共 17 條需求、46 個情境。每次改動都走同一個迴圈：
+這個 App 用 [Spectra](https://github.com/kaochenlong/spectra-app) 做規格驅動開發（SDD）。`docs/spectra/specs/` 記錄的是「這個 App 應該怎樣運作」，共 2 份規格、19 條需求、58 個情境。每次改動都走同一個迴圈：
 
 ```
 $spectra-discuss  想清楚要改什麼
@@ -172,7 +200,7 @@ $spectra-verify   驗收實作是否符合規格
 $spectra-archive  封存，規格合併回 specs/
 ```
 
-`session.md` 是這個 App 從零到一的完整開發紀錄。
+完成的變更連同當時的提案、設計與任務清單一起移入 `docs/spectra/changes/archive/`，保留為歷史紀錄。
 
 ## 已知限制
 

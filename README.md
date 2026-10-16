@@ -125,10 +125,14 @@ Sources/
     ├── StatusItemController.swift       選單列圖示與下拉選單
     ├── BatteryIconLoader.swift          從 bundle 載入圖示並縮放
     ├── AlertPanelController.swift       浮動面板
-    └── Resources/                       電池圖示與 App 圖示素材
 
-Tests/BatteryWarningKitTests/     63 個單元測試
+Resources/                     圖示素材（深藍外框與 Light/ 淺色外框、App 圖示）
+                               刻意放在 Sources/ 之外，否則 SwiftPM 會把它們
+                               當成 target 的未處理來源而每次建置報警告
+
+Tests/BatteryWarningKitTests/     62 個單元測試
 scripts/build-app.sh              組出 .app 並做 ad-hoc 簽章
+scripts/check-install.sh          比對已安裝的 App 與 build/，判斷是否需重裝
 docs/spectra/specs/               這個 App 應該怎樣運作（永久紀錄）
 docs/spectra/changes/archive/     已完成變更的歷史紀錄
 ```

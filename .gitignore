@@ -16,4 +16,4 @@ build/
 # Original artwork sources. The build and the app only use the derived PNGs
 # next to them; the JPEGs are kept out of history on purpose because they are
 # megabytes of source material that nothing in the build reads.
-Sources/BatteryWarning/Resources/*.jpeg
+Resources/*.jpeg

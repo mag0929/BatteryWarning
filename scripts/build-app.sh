@@ -28,7 +28,7 @@ cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 
 # 複製資源。`Package.swift` 刻意沒有宣告任何 resources，因此圖示在這裡複製，
 # 而不是從 SwiftPM 的 resource bundle 進來。
-RES_SRC="$ROOT/Sources/$APP_NAME/Resources"
+RES_SRC="$ROOT/Resources"
 if [[ -d "$RES_SRC" ]]; then
     # AppIcon.png 是下面產生 .icns 的建置輸入，不是 App 在執行期會載入的東西，
     # 因此不放進 bundle。
